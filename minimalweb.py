@@ -2,6 +2,8 @@ from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound, MethodNotAllowed
 from werkzeug.wrappers import Request, Response
 
+from middleware import BaseMiddleware
+
 import inspect
 
 class TextResponse(Response):
@@ -12,13 +14,16 @@ class MinimalWeb():
         self.routes = {}
         self.url_rules = Map()
 
+        self.middleware = BaseMiddleware(self)
+
     def __call__(self, environ, start_response):
-        return self.wsgi_app(environ, start_response)
+        return self.middleware(environ, start_response)
     
-    def wsgi_app(self, environ, start_response):
-        request = Request(environ)
-        response = self.dispatch_request(request)
-        return response(environ, start_response)
+    # No longer need
+    # def wsgi_app(self, environ, start_response):
+    #     request = Request(environ)
+    #     response = self.dispatch_request(request)
+    #     return response(environ, start_response)
     
     def dispatch_request(self, request):
         adapter = self.url_rules.bind_to_environ(request.environ)
