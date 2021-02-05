@@ -9,14 +9,17 @@ class BaseMiddleware():
         response = self.app.dispatch_request(request)
         return response(environ, start_response)
 
+    def add(self, middleware_cls):
+        self.app = middleware_cls(self.app)
+
     def dispatch_request(self, request):
         request = self.process_request(request)
         response = self.app.dispatch_request(request)
-        response = self.process_response(response)
+        response = self.process_response(request, response)
         return response
 
     def process_request(self, request):
-        pass
+        return None
 
     def process_response(self, request, response):
-        pass
+        return None
