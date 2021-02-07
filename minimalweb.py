@@ -1,6 +1,10 @@
+import os
+
 from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound, MethodNotAllowed
 from werkzeug.wrappers import Request, Response
+
+from jinja2 import Environment, FileSystemLoader
 
 from middleware import BaseMiddleware
 
@@ -8,6 +12,16 @@ import inspect
 
 class TextResponse(Response):
     pass
+
+class HtmlResponse(Response):
+    def __init__(self, template_name, templates_dir="templates", context=None):
+        if context is None:
+            context = {}
+
+        self.templates_env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)))
+        text = self.templates_env.get_template(template_name).render(**context)
+
+        super(HtmlResponse, self).__init__(text, content_type="text/html")
 
 class MinimalWeb():
     def __init__(self):
