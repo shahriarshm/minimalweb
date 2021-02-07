@@ -1,4 +1,4 @@
-from minimalweb import MinimalWeb, TextResponse
+from minimalweb import MinimalWeb, TextResponse, HtmlResponse
 from middleware import BaseMiddleware
 
 app = MinimalWeb()
@@ -16,11 +16,13 @@ app.add_middleware(MyMiddleware)
 
 @app.route("/")
 def index(req):
-    if req.method == "GET":
-        text = "GET Method"
-    elif req.method == "POST":
-        text = "POST Method"
-    return TextResponse("Index Page! " + text)
+    # Testing Context
+    context = {
+        "id": 1,
+        "name": "Shahriar",
+        "users": ["user1", "user2"]
+    }
+    return HtmlResponse("index.html", context=context)
 
 @app.route("/detail", methods=["GET", "POST"])
 class DetailView():
