@@ -19,7 +19,7 @@ class BaseMiddleware():
         return response
 
     def process_request(self, request):
-        return None
+        return request
 
     def process_response(self, request, response):
-        return None
+        return response
