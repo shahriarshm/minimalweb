@@ -5,14 +5,26 @@ app = MinimalWeb()
 
 class MyMiddleware(BaseMiddleware):
     def process_request(self, req):
-        print("Processing req", req.url)
+        print("FROM Middleware 1 Processing req", req.url)
         return req
 
     def process_response(self, req, res):
-        print("Processing res", req.url)
+        print("FROM Middleware 1 Processing res", req.url)
+        return res
+
+class MyMiddleware2(BaseMiddleware):
+    def process_request(self, req):
+        print("FROM Middleware 2 Processing req", req.url)
+        return req
+
+    def process_response(self, req, res):
+        print("FROM Middleware 2 Processing res", req.url)
         return res
 
 app.add_middleware(MyMiddleware)
+app.add_middleware(MyMiddleware2)
+
+app.serve_files()
 
 @app.route("/")
 def index(req):
