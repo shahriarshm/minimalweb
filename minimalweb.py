@@ -3,6 +3,7 @@ import os
 from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound, MethodNotAllowed
 from werkzeug.wrappers import Request, Response
+from werkzeug.middleware.shared_data import SharedDataMiddleware
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -24,6 +25,17 @@ class HtmlResponse(Response):
         super(HtmlResponse, self).__init__(text, content_type="text/html")
 
 class MinimalWeb():
+    ROOT_DIR =  os.path.dirname(__file__)
+
+    config = {
+        'debug': True,
+        'reloader': True,
+        'serve_static_files': True,
+        'export_files': {
+            '/static': os.path.join(ROOT_DIR, 'static'),
+        },
+    }
+
     def __init__(self):
         self.routes = {}
         self.url_rules = Map()
@@ -32,14 +44,11 @@ class MinimalWeb():
 
     def __call__(self, environ, start_response):
         return self.middleware(environ, start_response)
-    
-    # No longer need
-    # def wsgi_app(self, environ, start_response):
-    #     request = Request(environ)
-    #     response = self.dispatch_request(request)
-    #     return response(environ, start_response)
 
     def add_middleware(self, middleware_cls):
+        if not isinstance(self.middleware, BaseMiddleware):
+            raise Exception("You shouldn't add middleware after serving files.")
+
         self.middleware.add(middleware_cls)
     
     def dispatch_request(self, request):
@@ -82,5 +91,19 @@ class MinimalWeb():
             self.url_rules.add(rule)
             return handler
         return wrapper
+
+    def serve_files(self, export_files=None, extend_config=True):
+        if not self.config['debug']:
+            raise Exception("You can't serve files out of debug mode.")
+
+        if export_files is None:
+            export_files = {}
+        if extend_config:
+            export_files.update(self.config.get('export_files', {}))
+
+        self.middleware = SharedDataMiddleware(self.middleware, export_files)
+        
+        
+
             
 
