@@ -30,10 +30,11 @@ class MinimalWeb():
     config = {
         'debug': True,
         'reloader': True,
-        'serve_static_files': True,
         'export_files': {
             '/static': os.path.join(ROOT_DIR, 'static'),
         },
+        'host': '127.0.0.1',
+        'port': 8000,
     }
 
     def __init__(self):
@@ -102,6 +103,14 @@ class MinimalWeb():
             export_files.update(self.config.get('export_files', {}))
 
         self.middleware = SharedDataMiddleware(self.middleware, export_files)
+
+    def run(self, host=None, port=None, debug=True, reloader=True):
+        from werkzeug.serving import run_simple
+        _host = host or self.config['host']
+        _port = port or self.config['port']
+        use_debugger = debug or self.config['debug']
+        use_reloader = reloader or self.config['reloader']
+        run_simple(_host, _port, self.middleware, use_debugger=use_debugger, use_reloader=use_reloader)
         
         
 
