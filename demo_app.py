@@ -58,3 +58,6 @@ def movie(req, mid, title):
 @app.route("/dashboard")
 def dashboard(req):
     return TextResponse("Dashboard Page!")
+
+if __name__ == "__main__":
+    app.run()
